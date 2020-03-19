@@ -1,4 +1,4 @@
-# enry 
+# enry ![Test](https://github.com/go-enry/enry/workflows/Test/badge.svg)
 
 Programming language detector based on `go-enry/go-enry/v2` library. 
 *go-enry*, started as a port to _Go_ of the original [linguist](https://github.com/github/linguist) _Ruby_ library, that has an improved *2x performance*.
