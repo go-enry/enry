@@ -19,9 +19,8 @@ import (
 )
 
 var (
-	version = "undefined"
-	build   = "undefined"
-	commit  = "undefined"
+	version = "not-set"
+	commit  = "not-set"
 )
 
 func main() {
@@ -146,17 +145,21 @@ func main() {
 	fmt.Print(buf.String())
 }
 
+const usageFormat = `enry, a simple (and faster) implementation of github/linguist
+
+usage: %[1]s [-mode=(file|line|byte)] [-prog] <path>
+		%[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown] <path>
+		%[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown]
+		%[1]s [-version]
+
+build info: %[2]s, commit: %[3]s, based on linguist commit: %[4]s
+`
+
 func usage() {
 	fmt.Fprintf(
 		os.Stderr,
-		`  %[1]s %[2]s build: %[3]s commit: %[4]s, based on linguist commit: %[5]s
-  %[1]s, A simple (and faster) implementation of github/linguist
-  usage: %[1]s [-mode=(file|line|byte)] [-prog] <path>
-         %[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown] <path>
-         %[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown]
-         %[1]s [-version]
-`,
-		os.Args[0], version, build, commit, data.LinguistCommit[:7],
+		usageFormat,
+		os.Args[0], version, commit[:7], data.LinguistCommit[:7],
 	)
 }
 
