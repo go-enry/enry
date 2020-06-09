@@ -147,9 +147,9 @@ func main() {
 
 const usageFormat = `enry, a simple (and faster) implementation of github/linguist
 
-usage: %[1]s [-mode=(file|line|byte)] [-prog] <path>
-		%[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown] <path>
-		%[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown]
+usage: %[1]s [-mode=(file|line|byte)] [-all] [-prog] <path>
+		%[1]s [-mode=(file|line|byte)] [-all] [-json] [-breakdown] <path>
+		%[1]s [-mode=(file|line|byte)] [-all] [-json] [-breakdown]
 		%[1]s [-version]
 
 build info: %[2]s, commit: %[3]s, based on linguist commit: %[4]s

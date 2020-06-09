@@ -19,9 +19,18 @@ $ enry
 
 Note that enry's CLI **_does not need an actual git repository to work_**, which is an intentional difference from linguist.
 
+## Usage
 
-Install
--------
+By default, only the languages from Markdown and Programming groups are reported.
+
+One can choose to report all the languages (including plain text, configuration scripts, etc) using
+```
+enry -all
+```
+
+Well-known vendoring, configuration, documentation paths as well as paths starting with dot are alwasy excluded from the final report.
+
+## Install
 
 The recommended way to install the `enry` command-line tool is to either
 [download a release](https://github.com/go-enry/enry/releases) or run:
@@ -30,7 +39,6 @@ The recommended way to install the `enry` command-line tool is to either
 (cd "$(mktemp -d)" && go mod download && go get github.com/go-enry/enry)
 ```
 
-License
--------
+## License
 
 Apache License, Version 2.0. See [LICENSE](LICENSE)
