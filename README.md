@@ -23,9 +23,14 @@ Note that enry's CLI **_does not need an actual git repository to work_**, which
 
 By default, only the languages from Markdown and Programming groups are reported.
 
-One can choose to report all the languages (including plain text, configuration scripts, etc) using
+One can choose to report all the languages (including plain text, markup, templates, configuration scripts, etc) using
 ```
 enry -all
+```
+
+For cases when subsequent lexing/parsing of the files is desired, one can keep only the programming languages by
+```
+enry -prog
 ```
 
 Well-known vendoring, configuration, documentation paths as well as paths starting with dot are alwasy excluded from the final report.
