@@ -29,6 +29,7 @@ func main() {
 	jsonFlag := flag.Bool("json", false, "")
 	showVersion := flag.Bool("version", false, "Show the enry version information")
 	allLangs := flag.Bool("all", false, "Show all files, including those identifed as non-programming languages")
+	progLangs := flag.Bool("prog", false, "Show only files identifed as programming languages only")
 	countMode := flag.String("mode", "byte", "the method used to count file size. Available options are: file, line and byte")
 	limitKB := flag.Int64("limit", 16*1024, "Analyse first N KB of the file (-1 means no limit)")
 	flag.Parse()
@@ -83,8 +84,8 @@ func main() {
 		}
 
 		if enry.IsVendor(relativePath) || enry.IsDotFile(relativePath) ||
-			enry.IsDocumentation(relativePath) || enry.IsConfiguration(relativePath) {
-			// TODO(bzz): skip enry.IsGeneratedPath() after https://github.com/src-d/enry/issues/213
+			enry.IsDocumentation(relativePath) || enry.IsConfiguration(relativePath) ||
+			enry.IsGenerated(relativePath, nil) {
 			if f.IsDir() {
 				return filepath.SkipDir
 			}
@@ -105,13 +106,19 @@ func main() {
 			log.Println(err)
 			return nil
 		}
-		// TODO(bzz): skip enry.IsGeneratedContent() as well, after https://github.com/src-d/enry/issues/213
+
+		if enry.IsGenerated(relativePath, content) {
+			return nil
+		}
 
 		language := enry.GetLanguage(filepath.Base(path), content)
 		if language == enry.OtherLanguage {
 			return nil
 		}
 
+		if *progLangs && enry.GetLanguageType(language) != enry.Programming {
+			return nil
+		}
 		// If we are not asked to display all, do as
 		// https://github.com/github/linguist/blob/bf95666fc15e49d556f2def4d0a85338423c25f3/lib/linguist/blob_helper.rb#L382
 		if !*allLangs &&
@@ -131,7 +138,7 @@ func main() {
 	var buf bytes.Buffer
 	switch {
 	case *jsonFlag && !*breakdownFlag:
-		printJson(out, &buf)
+		printJSON(out, &buf)
 	case *jsonFlag && *breakdownFlag:
 		printBreakDown(out, &buf)
 	case *breakdownFlag:
@@ -147,9 +154,9 @@ func main() {
 
 const usageFormat = `enry, a simple (and faster) implementation of github/linguist
 
-usage: %[1]s [-mode=(file|line|byte)] [-prog] <path>
-		%[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown] <path>
-		%[1]s [-mode=(file|line|byte)] [-prog] [-json] [-breakdown]
+usage: %[1]s [-mode=(file|line|byte)] [-all] [-prog] <path>
+		%[1]s [-mode=(file|line|byte)] [-all] [-prog] [-json] [-breakdown] <path>
+		%[1]s [-mode=(file|line|byte)] [-all] [-prog] [-json] [-breakdown]
 		%[1]s [-version]
 
 build info: %[2]s, commit: %[3]s, based on linguist commit: %[4]s
@@ -174,7 +181,7 @@ func printBreakDown(out map[string][]string, buff *bytes.Buffer) {
 	}
 }
 
-func printJson(out map[string][]string, buf *bytes.Buffer) {
+func printJSON(out map[string][]string, buf *bytes.Buffer) {
 	json.NewEncoder(buf).Encode(out)
 }
 
