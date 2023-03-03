@@ -29,7 +29,7 @@ func main() {
 	jsonFlag := flag.Bool("json", false, "")
 	showVersion := flag.Bool("version", false, "Show the enry version information")
 	allLangs := flag.Bool("all", false, "Show all files, including those identifed as non-programming languages")
-	progLangs := flag.Bool("prog", false, "Show only files identifed as programming languages only")
+	progLangs := flag.Bool("prog", false, "Show files identifed as programming languages only")
 	countMode := flag.String("mode", "byte", "the method used to count file size. Available options are: file, line and byte")
 	limitKB := flag.Int64("limit", 16*1024, "Analyse first N KB of the file (-1 means no limit)")
 	flag.Parse()
@@ -89,7 +89,6 @@ func main() {
 			if f.IsDir() {
 				return filepath.SkipDir
 			}
-
 			return nil
 		}
 
@@ -97,7 +96,7 @@ func main() {
 			return nil
 		}
 
-		// TODO(bzz): provide API that mimics lingust CLI output for
+		// TODO(bzz): provide API that mimics linguist CLI output for
 		// - running ByExtension & ByFilename
 		// - reading the file, if that did not work
 		// - GetLanguage([]Strategy)
@@ -242,8 +241,10 @@ func fileCountValues(_ string, files []string) (float64, filelistError) {
 }
 
 func lineCountValues(root string, files []string) (float64, filelistError) {
-	var filesErr filelistError
-	var t float64
+	var (
+		filesErr filelistError
+		t        float64
+	)
 	for _, fName := range files {
 		l, _ := getLines(filepath.Join(root, fName), nil)
 		t += float64(l)
@@ -252,8 +253,10 @@ func lineCountValues(root string, files []string) (float64, filelistError) {
 }
 
 func byteCountValues(root string, files []string) (float64, filelistError) {
-	var filesErr filelistError
-	var t float64
+	var (
+		filesErr filelistError
+		t        float64
+	)
 	for _, fName := range files {
 		f, err := os.Open(filepath.Join(root, fName))
 		if err != nil {
@@ -307,11 +310,11 @@ func printFileAnalysis(file string, limit int64, isJSON bool) error {
 
 	fmt.Printf(
 		`%s: %d lines (%d sloc)
-  type:      %s
-  mime_type: %s
-  language:  %s
-  vendored:  %t
-`,
+				type:      %s
+				mime_type: %s
+				language:  %s
+				vendored:  %t
+				`,
 		filepath.Base(file), totalLines, nonBlank, fileType, mimeType, language, vendored,
 	)
 	return nil
