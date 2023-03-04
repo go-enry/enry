@@ -310,11 +310,11 @@ func printFileAnalysis(file string, limit int64, isJSON bool) error {
 
 	fmt.Printf(
 		`%s: %d lines (%d sloc)
-				type:      %s
-				mime_type: %s
-				language:  %s
-				vendored:  %t
-				`,
+  type:      %s
+  mime_type: %s
+  language:  %s
+  vendored:  %t
+`,
 		filepath.Base(file), totalLines, nonBlank, fileType, mimeType, language, vendored,
 	)
 	return nil
