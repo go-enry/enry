@@ -136,16 +136,14 @@ func main() {
 
 	var buf bytes.Buffer
 	switch {
-	case *jsonFlag && !*breakdownFlag:
-		printJSON(out, &buf)
 	case *jsonFlag && *breakdownFlag:
-		printBreakDown(out, &buf)
+		printBreakDown(out, &buf, true)
 	case *breakdownFlag:
-		printPercents(root, out, &buf, *countMode)
+		printPercents(root, out, &buf, *countMode, false)
 		buf.WriteByte('\n')
-		printBreakDown(out, &buf)
+		printBreakDown(out, &buf, false)
 	default:
-		printPercents(root, out, &buf, *countMode)
+		printPercents(root, out, &buf, *countMode, *jsonFlag)
 	}
 
 	fmt.Print(buf.String())
@@ -169,19 +167,18 @@ func usage() {
 	)
 }
 
-func printBreakDown(out map[string][]string, buff *bytes.Buffer) {
-	for name, language := range out {
-		fmt.Fprintln(buff, name)
-		for _, file := range language {
-			fmt.Fprintln(buff, file)
+func printBreakDown(out map[string][]string, buff *bytes.Buffer, jsonFlag bool) {
+	if jsonFlag {
+		json.NewEncoder(buff).Encode(out)
+	} else {
+		for name, language := range out {
+			fmt.Fprintln(buff, name)
+			for _, file := range language {
+				fmt.Fprintln(buff, file)
+			}
+			fmt.Fprintln(buff)
 		}
-
-		fmt.Fprintln(buff)
 	}
-}
-
-func printJSON(out map[string][]string, buf *bytes.Buffer) {
-	json.NewEncoder(buf).Encode(out)
 }
 
 // filelistError represents a failed operation that took place across multiple files.
@@ -191,7 +188,8 @@ func (e filelistError) Error() string {
 	return fmt.Sprintf("Could not process the following files:\n%s", strings.Join(e, "\n"))
 }
 
-func printPercents(root string, fSummary map[string][]string, buff *bytes.Buffer, mode string) {
+func printPercents(root string, fSummary map[string][]string, buff *bytes.Buffer, mode string, isJSON bool) {
+
 	// Select the way we quantify 'amount' of code.
 	reducer := fileCountValues
 	switch mode {
@@ -225,13 +223,30 @@ func printPercents(root string, fSummary map[string][]string, buff *bytes.Buffer
 		return fileValues[keys[i]] > fileValues[keys[j]]
 	})
 
-	// Calculate and write percentages of each file type.
-	for _, fType := range keys {
-		val := fileValues[fType]
-		percent := val / total * 100.0
-		buff.WriteString(fmt.Sprintf("%.2f%%\t%s\n", percent, fType))
-		if unreadableFiles != nil {
-			buff.WriteString(fmt.Sprintf("\n%s", unreadableFiles.Error()))
+	if isJSON {
+		results := []map[string]interface{}{} // This will hold our language percentages
+
+		for _, fType := range keys {
+			val := fileValues[fType]
+			percent := val / total * 100.0
+			results = append(results, map[string]interface{}{
+				"percentage": fmt.Sprintf("%.2f%%", percent),
+				"language":   fType,
+				"color":      enry.GetColor(fType),
+			})
+		}
+		if err := json.NewEncoder(buff).Encode(results); err != nil {
+			log.Println("Error encoding JSON:", err)
+		}
+	} else {
+		// The existing code for plain text format goes here
+		for _, fType := range keys {
+			val := fileValues[fType]
+			percent := val / total * 100.0
+			buff.WriteString(fmt.Sprintf("%.2f%%\t%s\n", percent, fType))
+			if unreadableFiles != nil {
+				buff.WriteString(fmt.Sprintf("\n%s", unreadableFiles.Error()))
+			}
 		}
 	}
 }
