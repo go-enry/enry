@@ -233,7 +233,7 @@ func printPercents(root string, fSummary map[string][]string, buff *bytes.Buffer
 				"percentage": fmt.Sprintf("%.2f%%", percent),
 				"language":   fType,
 				"color":      enry.GetColor(fType),
-				"type":       data.Type(enry.GetLanguageType(fType)).String(),
+				"type":       data.TypeForString(fType).String(),
 			})
 		}
 		if err := json.NewEncoder(buff).Encode(results); err != nil {
